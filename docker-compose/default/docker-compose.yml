@@ -1,0 +1,96 @@
+version: "3.8"
+
+services:
+
+  configserver:
+    image: rabpan/configserver:latest
+    mem_limit: 700m
+    ports:
+      - "8071:8071"
+    networks:
+      - eazybank-network
+
+  eureka:
+    image: rabpan/eureka:latest
+    mem_limit: 700m
+    ports:
+      - "8070:8070"
+    networks:
+      - eazybank-network
+    depends_on:
+      - configserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE : default
+      SPRING_CONFIG_IMPORT : configserver:http://configserver:8071/
+
+  account:
+    image: rabpan/account:latest
+    mem_limit: 700m
+    ports:
+      - "6060:6060"
+    networks:
+      - eazybank-network
+    depends_on:
+      - configserver
+      - eureka
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8070/eureka/
+
+  loan:
+    image: rabpan/loan:latest
+    mem_limit: 700m
+    ports:
+      - "8090:8090"
+    networks:
+      - eazybank-network
+    depends_on:
+      - configserver
+      - eureka
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8070/eureka/
+    
+  cards:
+    image: rabpan/cards:latest
+    mem_limit: 700m
+    ports:
+      - "9000:9000"
+    networks:
+      - eazybank-network
+    depends_on:
+      - configserver
+      - eureka
+    deploy:
+        restart_policy:
+          condition: on-failure
+          delay: 5s
+          max_attempts: 3
+          window: 120s
+    environment:
+        SPRING_PROFILES_ACTIVE: default
+        SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8070/eureka/
+    
+networks:
+  eazybank-network:

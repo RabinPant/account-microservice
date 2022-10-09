@@ -1,12 +1,13 @@
 package com.account.bank.model;
 
+import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.Value;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Entity
@@ -15,12 +16,16 @@ import java.time.LocalDate;
 public class Accounts {
 
     @Column(name = "customer_id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int customerId;
     @Column(name="account_number")
     @Id
     private long accountNumber;
+    @NotNull
     private String accountType;
+    @Column(name="branch_address")
     private String branchAddress;
     private LocalDate createDt;
+
 
 }
